@@ -114,6 +114,8 @@ int main(int /*argc*/, char** /*argv*/)
     state.inputServer      = cfg.serverHost;
     
     state.inputPort        = cfg.serverPort;
+
+    state.inputPath        = cfg.serverPath;
     
     state.saveCredentials  = cfg.saveCredentials;
     
@@ -331,6 +333,8 @@ static void handleInputLogin(u64 btn, AppState& state)
                 cfg.serverHost      = state.inputServer;
                 
                 cfg.serverPort      = state.inputPort;
+
+                cfg.serverPath      = state.inputPath;
                 
                 cfg.saveCredentials = state.saveCredentials;
 
@@ -391,7 +395,7 @@ static void handleInputLogin(u64 btn, AppState& state)
         
         swkbdConfigMakePresetDefault(&kbd);
 
-        const char* headers[] = { "Server address", "Port", "Username", "Password" };
+        const char* headers[] = { "Server address", "Port", "Base Path", "Username", "Password" };
         
         swkbdConfigSetHeaderText(&kbd, headers[state.loginField]);
         
