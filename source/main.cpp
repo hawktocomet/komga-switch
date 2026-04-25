@@ -553,33 +553,39 @@ static void handleInputSeries(u64 btn, AppState& state)
     state.seriesSelected = sel;
 
     // ---- Paginate Series across pages ----
-    if (btn & HidNpadButton_L && state.seriesPageIndex > 0) 
+    if (btn & HidNpadButton_L)
     {
 
-        loadSeriesPage(state, state.currentLibraryId, state.seriesPageIndex - 1);
+        if (state.seriesPageIndex > 0)
+        {
+            
+            loadSeriesPage(state, state.currentLibraryId, state.seriesPageIndex - 1);
+        }
 
-    }
+        else
+        {
 
-    if (btn & HidNpadButton_R && state.seriesPageIndex + 1 < state.seriesPage.totalPages) 
-    {
-
-        loadSeriesPage(state, state.currentLibraryId, state.seriesPageIndex + 1);
+            loadSeriesPage(state, state.currentLibraryId, state.seriesPage.totalPages - 1);
     
-    }
-
-    // ---- Jump to last/first page ----
-    if (btn & HidNpadButton_L && state.seriesPageIndex == 0)
-    {
-    
-        loadSeriesPage(state, state.currentLibraryId, state.seriesPage.totalPages - 1);
+        }
     
     }
-
-    if (btn & HidNpadButton_R && state.seriesPageIndex == state.seriesPage.totalPages - 1)
+    
+    if (btn & HidNpadButton_R)
     {
     
-        loadSeriesPage(state, state.currentLibraryId, 0);
+        if (state.seriesPageIndex + 1 < state.seriesPage.totalPages)
+        {
+        
+            loadSeriesPage(state, state.currentLibraryId, state.seriesPageIndex + 1);
+        
+        }
+        
+        else
+        {
+            loadSeriesPage(state, state.currentLibraryId, 0);
     
+        }
     }
 
     // ---- Search for Series with system keyboard ----
@@ -678,29 +684,42 @@ static void handleInputBooks(u64 btn, AppState& state)
     state.bookSelected = sel;
 
     // ---- Page Left/Right Books ----
-    if (btn & HidNpadButton_L && state.bookPageIndex > 0) 
+    if (btn & HidNpadButton_L)
     {
-
-        loadBooksPage(state, state.currentSeriesId, state.bookPageIndex - 1);
+    
+        if (state.bookPageIndex > 0)
+        {
+    
+            loadBooksPage(state, state.currentSeriesId, state.bookPageIndex - 1);
+    
+        }
+        
+        else
+        {
+    
+            loadBooksPage(state, state.currentSeriesId, state.booksPage.totalPages - 1);
+    
+        }
     
     }
 
-    if (btn & HidNpadButton_R && state.bookPageIndex + 1 < state.booksPage.totalPages) 
+    if (btn & HidNpadButton_R)
     {
 
-        loadBooksPage(state, state.currentSeriesId, state.bookPageIndex + 1);
+        if (state.bookPageIndex + 1 < state.booksPage.totalPages)
+        {
+            
+            loadBooksPage(state, state.currentSeriesId, state.bookPageIndex + 1);
     
-    }
-
-    // ---- Jump to last/first page ----
-    if (btn & HidNpadButton_L && state.bookPageIndex == 0)
-    {
-        loadBooksPage(state, state.currentSeriesId, state.booksPage.totalPages - 1);
-    }
-
-    if (btn & HidNpadButton_R && state.bookPageIndex == state.booksPage.totalPages - 1)
-    {
-        loadBooksPage(state, state.currentSeriesId, 0);
+        }
+            
+        else
+        {
+    
+            loadBooksPage(state, state.currentSeriesId, 0);
+    
+        }
+    
     }
 
     if (btn & HidNpadButton_A && n > 0) 
