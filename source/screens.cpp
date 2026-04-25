@@ -456,72 +456,166 @@ void drawReaderScreen(SDL_Renderer* r, TTF_Font* fontMd, TTF_Font* fontSm, AppSt
 
     // ---- Draw Book Page ---
     int texW, texH;
-    
+
     SDL_QueryTexture(tex, nullptr, nullptr, &texW, &texH);
 
-    // ---- Scale (fit width baseline) ----
-    float baseScale = (float)SCREEN_W / texW;
+    // ---- In portrait mode, swap width/height for scaling ----
+    bool portrait = (state.readerRotation == 90);
+
+    float baseScale = portrait ? (float)SCREEN_H / texW : (float)SCREEN_W / texW;   // rotated: texture width maps to screen height
 
     float scale = baseScale * state.readerZoom;
-
+   
     int drawW = (int)(texW * scale);
-    
+   
     int drawH = (int)(texH * scale);
 
     // ---- Clamp Pan ----
-    float maxOffsetX = (float)max(0, (drawW - SCREEN_W) / 2);
+    if (portrait)
+    {
+        // In portrait, drawH spans the horizontal axis and drawW spans the vertical
+        float maxOffsetX = (float)max(0, (drawH - SCREEN_W) / 2);
+     
+        float maxOffsetY = (float)max(0, (drawW - SCREEN_H) / 2);
 
-    float minOffsetY = (float)(SCREEN_H - drawH);
-    
-    float maxOffsetY = 0.0f; // top = always 0
+        state.readerOffsetX = clamp(state.readerOffsetX, -maxOffsetX, maxOffsetX);
+     
+        state.readerOffsetY = clamp(state.readerOffsetY, -maxOffsetY, maxOffsetY);
+    }
 
-    state.readerOffsetX = clamp(state.readerOffsetX, -maxOffsetX, maxOffsetX);    
+    else
+    {
+        float maxOffsetX = (float)max(0, (drawW - SCREEN_W) / 2);
     
-    state.readerOffsetY = clamp(state.readerOffsetY, minOffsetY, maxOffsetY);  
+        float minOffsetY = (float)(SCREEN_H - drawH);
 
-    // ---- Position Pan ----
-    int dstX = (SCREEN_W - drawW) / 2 + state.readerOffsetX;
+        state.readerOffsetX = clamp(state.readerOffsetX, -maxOffsetX, maxOffsetX);
     
-    int dstY = state.readerOffsetY;
+        state.readerOffsetY = clamp(state.readerOffsetY, minOffsetY, 0.0f);
+    
+    }
+
+    // ---- Position ----
+    int dstX, dstY;
+
+    if (portrait)
+    {
+        dstX = (SCREEN_W - drawW) / 2 + state.readerOffsetX;
+        dstY = (SCREEN_H - drawH) / 2 + state.readerOffsetY;
+    }
+    else
+    {
+        dstX = (SCREEN_W - drawW) / 2 + state.readerOffsetX;
+        dstY = state.readerOffsetY;
+    }
 
     SDL_Rect dst{ dstX, dstY, drawW, drawH };
-
-    SDL_RenderCopy(r, tex, nullptr, &dst);
+    SDL_RenderCopyEx(r, tex, nullptr, &dst, state.readerRotation, nullptr, SDL_FLIP_NONE);
 
     // ---- Reader HUD ----
-    if (state.readerShowHUD) 
+    if (state.readerShowHUD)
     {
-
-        // ---- Top bar ----
-        fillRect(r, 0, 0, SCREEN_W, 44, {0,0,0,180});
-
         string title = state.currentBookName;
         
         if (title.size() > 40) 
         {
-            
+         
             title = title.substr(0, 38) + "..";
-
-        }    
-
-        fillRect(r, 0, SCREEN_H - 36, SCREEN_W, 36, {0,0,0,180});
-
-        drawText(r, fontSm, "[X] HUD : [LB/RB] Page : [L/R D-Pad] Page : [ZL/ZR] Zoom : [L-Stick] : Pan [U/D D-Pad] : Pan : [B] Back", SCREEN_W/2, SCREEN_H - 26, C_SUBTEXT, true);
         
-        drawText(r, fontMd, title, SCREEN_W/2, 8, C_TEXT, true);
+        }
+                
+        if (portrait)
+        {
+            // Offscreen texture is SCREEN_H wide x SCREEN_W tall (720x1280)
+            // We draw on it as if it's a normal landscape screen
+            // Then rotate 90 degrees onto the real screen
+            SDL_Texture* hudTex = SDL_CreateTexture(r, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_H, SCREEN_W);
 
-        // ---- Page Counter ----
-        string pg = to_string(state.readerPage + 1) + " / " + to_string((int)state.pages.size());
+            SDL_SetTextureBlendMode(hudTex, SDL_BLENDMODE_BLEND);
 
-        drawText(r, fontSm, pg, SCREEN_W - 90, 12, C_SUBTEXT, false);
+            SDL_SetRenderTarget(r, hudTex);
+            
+            SDL_SetRenderDrawColor(r, 0, 0, 0, 0);
+            
+            SDL_RenderClear(r);
 
-        // ---- Progress Bar ----
-        float prog = (float)(state.readerPage + 1) / state.pages.size();
+            // Top bar on offscreen texture
+            fillRect(r, 0, 0, SCREEN_H, 44, {0,0,0,180});
 
-        fillRect(r, 0, SCREEN_H - 4, SCREEN_W, 4, C_PANEL);
+            // Bottom bar on offscreen texture
+            fillRect(r, 0, SCREEN_W - 36, SCREEN_H, 36, {0,0,0,180});
 
-        fillRect(r, 0, SCREEN_H - 4, (int)(SCREEN_W * prog), 4, C_ACCENT);
-    
+            // Title centered in top bar
+            drawText(r, fontMd, title, SCREEN_H/2, 8, C_TEXT, true, false);
+
+            // Page counter top right
+            string pg = to_string(state.readerPage + 1) + " / " + to_string((int)state.pages.size());
+            
+            drawText(r, fontSm, pg, SCREEN_H - 90, 12, C_SUBTEXT, false, false);
+
+            // Controls hint in bottom bar
+            drawText(r, fontSm, "[LB] HUD  [U/D] Page  [L/R] Zoom  [Stick] Pan  [B] Back  [Minus] Rotate", SCREEN_H/2, SCREEN_W - 26, C_SUBTEXT, true, false);
+
+            // Progress bar
+            float prog = (float)(state.readerPage + 1) / state.pages.size();
+
+            fillRect(r, 0, SCREEN_W - 4, SCREEN_H, 4, C_PANEL);
+            
+            fillRect(r, 0, SCREEN_W - 4, (int)(SCREEN_H * prog), 4, C_ACCENT);
+
+            // Switch render target back to screen
+            SDL_SetRenderTarget(r, nullptr);
+
+            // Render the offscreen texture rotated 90 degrees
+            // Center point for rotation is center of screen
+            SDL_Point center
+            { 
+            
+                SCREEN_W/2, SCREEN_H/2 
+            
+            };
+            
+            SDL_Rect hudDst
+            { 
+                
+                SCREEN_W/2 - SCREEN_H/2,
+                
+                SCREEN_H/2 - SCREEN_W/2 + 560,   // empirical offset to center rotated HUD on screen
+                
+                SCREEN_H,                   // 720
+                
+                SCREEN_W                    // 1280
+            
+            };
+
+            SDL_RenderCopyEx(r, hudTex, nullptr, &hudDst, 90, &center, SDL_FLIP_NONE);
+            
+            SDL_DestroyTexture(hudTex);
+        
+        }
+        
+        else
+        {
+            // ---- Normal landscape HUD ----
+            fillRect(r, 0, 0, SCREEN_W, 44, {0,0,0,180});
+
+            fillRect(r, 0, SCREEN_H - 36, SCREEN_W, 36, {0,0,0,180});
+            
+            drawText(r, fontSm, "[X] HUD : [LB/RB] Page : [ZL/ZR] Zoom : [L-Stick] Pan : [B] Back : [Minus] Rotate", SCREEN_W/2, SCREEN_H - 26, C_SUBTEXT, true);
+            
+            drawText(r, fontMd, title, SCREEN_W/2, 8, C_TEXT, true);
+
+            string pg = to_string(state.readerPage + 1) + " / " + to_string((int)state.pages.size());
+            
+            drawText(r, fontSm, pg, SCREEN_W - 90, 12, C_SUBTEXT, false);
+            
+            float prog = (float)(state.readerPage + 1) / state.pages.size();
+            
+            fillRect(r, 0, SCREEN_H - 4, SCREEN_W, 4, C_PANEL);
+            
+            fillRect(r, 0, SCREEN_H - 4, (int)(SCREEN_W * prog), 4, C_ACCENT);
+        }
+
     }
 
 }

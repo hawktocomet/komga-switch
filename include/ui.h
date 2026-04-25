@@ -145,8 +145,8 @@ struct AppState
 
     bool  readerFitWidth  = false;
 
-    // ---- UI rotation (applies to all screens) ----
-    int  uiRotation      = 0;   // 0 = normal, 90 = landscape CW
+    // ---- Reader Rotation ----
+    int readerRotation = 0; // 0 = landscape default, 90 = portrait left, 270 = portrait right
 
     // ---- Keyboard (software) ----
     bool  kbVisible = false;

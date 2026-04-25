@@ -759,102 +759,155 @@ static void handleInputReader(u64 btn, AppState& state)
     
     };
 
+    bool portrait = (state.readerRotation == 90);
+
     // ---- Page Turning ----
     bool didPageTurn = false;
 
-    if (btn & HidNpadButton_L) 
+    if (portrait)
     {
+        // In portrait: Up/Down d-pad changes page, L bumper is used for zoom
+        if (btn & HidNpadButton_Down)
+        {
 
-        if (state.readerPage > 0) 
-        { 
-            
-            pageLeft(); 
-            
-            didPageTurn = true; 
+            if (state.readerPage < total - 1) 
+            { 
+                
+                pageRight(); didPageTurn = true; 
+            }
         
         }
-    
-    }
-
-    if (btn & HidNpadButton_R) 
-    {
-        
-        if (state.readerPage < total - 1) 
-        { 
-            
-            pageRight(); 
-            
-            didPageTurn = true; 
-        
-        }
-    
-    }
-
-    if (btn & HidNpadButton_Left) 
-    {
-        
-        if (state.readerPage > 0) 
+        if (btn & HidNpadButton_Up)
         {
             
-            pageLeft(); 
+            if (state.readerPage > 0) 
+            { 
             
-            didPageTurn = true; 
+                pageLeft(); didPageTurn = true; 
+            
+            }
+        
         }
     
     }
-
-    if (btn & HidNpadButton_Right) 
+    
+    else
     {
         
-        if (state.readerPage < total - 1) 
-        { 
+        // In landscape: L/R bumpers and Left/Right d-pad change page
+        if (btn & HidNpadButton_L)
+        {
+        
+            if (state.readerPage > 0) 
+            { 
+                pageLeft(); didPageTurn = true; 
+            }
+        
+        }
+        
+        if (btn & HidNpadButton_R)
+        {
+        
+            if (state.readerPage < total - 1) 
+            { 
             
-            pageRight(); 
+                pageRight(); didPageTurn = true; 
             
-            didPageTurn = true; 
+            }
+        
+        }
+        
+        if (btn & HidNpadButton_Left)
+        {
+        
+            if (state.readerPage > 0) 
+            { 
+            
+                pageLeft(); didPageTurn = true; 
+            
+            }
+        
+        }
+        
+        if (btn & HidNpadButton_Right)
+        {
+        
+            if (state.readerPage < total - 1) 
+            { 
+            
+                pageRight(); didPageTurn = true; 
+            
+            }
+        
         }
     
-        
     }
 
     if (didPageTurn) 
     { 
     
-        return;
+        return; 
+    
+    }
+
+    // ---- Zoom ----
+    if (portrait)
+    {
+        
+        if (btn & HidNpadButton_Right) 
+        {
+            
+            state.readerZoom += 0.1f;
+        
+        }
+        
+        if (btn & HidNpadButton_Left)  
+        {
+        
+            state.readerZoom -= 0.1f;
+        
+        }
     
     }
     
-    // --- Zoom (ZL/ZR) ----
-    if (btn & HidNpadButton_ZL) 
+    else
     {
-
-        state.readerZoom -= 0.1f;
-
-    }
-
-    if (btn & HidNpadButton_ZR) 
-    {
-
-        state.readerZoom += 0.1f;
- 
+    
+        if (btn & HidNpadButton_ZL) 
+        {
+         
+            state.readerZoom -= 0.1f;
+        
+        }
+        if (btn & HidNpadButton_ZR) 
+        {
+            
+            state.readerZoom += 0.1f;
+        
+        }
+    
     }
 
     state.readerZoom = max(0.5f, min(3.0f, state.readerZoom));
 
+    // ---- D-PAD PAN (landscape only) ----
+    if (!portrait)
+    {
     
-    // ---- D-PAD PAN (VERTICAL ONLY) ----
-    if (btn & HidNpadButton_Up) 
-    {
+        if (btn & HidNpadButton_Up)   
+        {
         
-        state.readerOffsetY += 20;
-
-    }
-
-    if (btn & HidNpadButton_Down) 
-    {
+            state.readerOffsetY += 20;
         
-        state.readerOffsetY -= 20;
-
+        }
+        
+        if (btn & HidNpadButton_Down) 
+        {
+         
+            state.readerOffsetY -= 20;
+        
+        }
+    
     }
 
     // ---- ANALOG STICK PAN ----
@@ -862,46 +915,73 @@ static void handleInputReader(u64 btn, AppState& state)
 
     const float deadzone = 8000.0f;
 
-    if (abs(stick.x) > deadzone) 
+    if (abs(stick.x) > deadzone)
     {
-
+    
         state.readerOffsetX -= (int)(stick.x / 4000);
-
+    
     }
 
-    if (abs(stick.y) > deadzone) 
+    if (abs(stick.y) > deadzone)
     {
-
+    
         state.readerOffsetY += (int)(stick.y / 4000);
-   
+    
     }
 
-    // ---- HUD TOGGLE (X) ----
-    if (btn & HidNpadButton_X) 
+    // ---- Rotation Toggle (Minus) ----
+    if (btn & HidNpadButton_Minus)
     {
+    
+        state.readerRotation = (state.readerRotation == 0) ? 90 : 0;
+    
+        resetView();
+    
+    }
 
-        state.readerShowHUD = !state.readerShowHUD;
-
+    // ---- HUD TOGGLE (portrait=ZL, landscape=X) ----
+    if (portrait)
+    {
+    
+        if (btn & HidNpadButton_L)
+        {
+         
+            state.readerShowHUD = !state.readerShowHUD;
+        
+        }
+    
+    }
+    
+    else
+    {
+    
+        if (btn & HidNpadButton_X) 
+        {
+         
+            state.readerShowHUD = !state.readerShowHUD;
+        
+        }
+    
     }
 
     // ---- Exit Book ----
-    if (btn & HidNpadButton_B) 
+    if (btn & HidNpadButton_B)
     {
-
+    
         KomgaApi::markProgress(state.currentBookId, state.readerPage + 1);
-        
-        loadBooksPage(state, state.currentSeriesId, state.bookPageIndex);  // ← reload
-        
+    
+        loadBooksPage(state, state.currentSeriesId, state.bookPageIndex);
+    
         state.screen = Screen::BOOKS;
     
     }
 
     // ---- Exit App ----
-    if (btn & HidNpadButton_Plus) 
+    if (btn & HidNpadButton_Plus)
     {
-
+    
         KomgaApi::markProgress(state.currentBookId, state.readerPage + 1);
-        
+    
         state.running = false;
     
     }
