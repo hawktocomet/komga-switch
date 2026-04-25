@@ -11,12 +11,14 @@ struct AppConfig
     string serverHost;
     
     string serverPort;
+
+    string serverPath = "";
     
     string username;
     
     string password;
     
-    bool        saveCredentials = false;
+    bool   saveCredentials = false;
 
 };
 

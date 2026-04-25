@@ -49,6 +49,13 @@ AppConfig ConfigStore::load()
         
         }
 
+        if (j.contains("serverPath") && j["serverPath"].is_string()) 
+        {
+
+            cfg.serverPath = j["serverPath"].get<string>();
+        
+        }
+
         if (j.contains("saveCredentials") && j["saveCredentials"].is_boolean()) 
         {
          
@@ -96,6 +103,8 @@ void ConfigStore::save(const AppConfig& cfg)
     j["serverHost"]       = cfg.serverHost;
     
     j["serverPort"]       = cfg.serverPort;
+
+    j["serverPath"]       = cfg.serverPath;
     
     j["saveCredentials"]  = cfg.saveCredentials;
     
@@ -131,6 +140,6 @@ void ConfigStore::save(const AppConfig& cfg)
 string ConfigStore::apiBase(const AppConfig& cfg) 
 {
     
-    return "http://" + cfg.serverHost + ":" + cfg.serverPort + "/api/v1";
+    return "http://" + cfg.serverHost + ":" + cfg.serverPort + cfg.serverPath + "/api/v1";
 
 }

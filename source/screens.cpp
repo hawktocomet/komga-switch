@@ -20,8 +20,8 @@ void drawLoginScreen(SDL_Renderer* r, TTF_Font* fontLg, TTF_Font* fontMd, TTF_Fo
 
     fillRect(r, 0, 0, SCREEN_W, SCREEN_H, C_BG);
 
-    // -- 4 Field Login Panel ---
-    int panelW = 500, panelH = 460;
+    // -- 5 Field Login Panel ---
+    int panelW = 500, panelH = 520;
 
     int panelX = (SCREEN_W - panelW) / 2;
     
@@ -55,20 +55,22 @@ void drawLoginScreen(SDL_Renderer* r, TTF_Font* fontLg, TTF_Font* fontMd, TTF_Fo
     
     int gap    = fieldH + 32;
 
-    FieldDef fields[4] = 
+    FieldDef fields[5] = 
     {
 
         { "Server address", state.inputServer, false, 0 },
 
         { "Port",           state.inputPort,   false, 1 },
 
-        { "Username",       state.inputUser,   false, 2 },
+        { "Path",           state.inputPath,   false, 2 },
 
-        { "Password",       state.inputPass,   true,  3 },
+        { "Username",       state.inputUser,   false, 3 },
+
+        { "Password",       state.inputPass,   true,  4 },
 
     };
 
-    for (int i = 0; i < 4; ++i) 
+    for (int i = 0; i < 5; ++i) 
     {
     
         int y      = startY + i * gap;
@@ -87,9 +89,19 @@ void drawLoginScreen(SDL_Renderer* r, TTF_Font* fontLg, TTF_Font* fontMd, TTF_Fo
         
         if (fields[i].value.empty()) 
         {
-        
-            disp = focus ? "" : string("Enter ") + fields[i].label;
-        
+            if (i ==2 ) 
+            {
+                
+                disp = focus ? "" : "Optional e.g. /komga";
+            
+            }
+            else
+            {
+
+                disp = focus ? "" : string("Enter ") + fields[i].label;
+            
+            }
+
             col  = C_SUBTEXT;
         
         } 
@@ -127,7 +139,7 @@ void drawLoginScreen(SDL_Renderer* r, TTF_Font* fontLg, TTF_Font* fontMd, TTF_Fo
     }
 
     // ---- Save credentials checkbox ----
-    int cbY = startY + 4 * gap - 8;
+    int cbY = startY + 5 * gap - 8;
     
     fillRect(r, fieldX, cbY, 20, 20, {35, 35, 48, 255});
     
@@ -140,7 +152,7 @@ void drawLoginScreen(SDL_Renderer* r, TTF_Font* fontLg, TTF_Font* fontMd, TTF_Fo
     
     }
 
-    drawText(r, fontSm, "Save credentials", fieldX + 28, cbY + 1, C_SUBTEXT);
+    drawText(r, fontSm, "Save credentials", fieldX + 50, cbY + 1, C_SUBTEXT);
 
     // ---- Login button ----
     int btnW = 220, btnH = 44;
@@ -151,7 +163,7 @@ void drawLoginScreen(SDL_Renderer* r, TTF_Font* fontLg, TTF_Font* fontMd, TTF_Fo
     
     fillRect(r, btnX, btnY, btnW, btnH, C_ACCENT);
     
-    drawText(r, fontMd, state.loginLoading ? "Connecting..." : "Login (A)", btnX + btnW/2, btnY + 10, C_BG, true);
+    drawText(r, fontMd, state.loginLoading ? "Connecting..." : "Login (A)", btnX + btnW/2, btnY + 12, C_BG, true);
 
     // ---- Error ----
     if (!state.loginError.empty()) 

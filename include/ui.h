@@ -70,6 +70,8 @@ struct AppState
     
     string inputPort;     // port number string
     
+    string inputPath;     // optional base path e.g. /komga
+
     string inputUser;
     
     string inputPass;

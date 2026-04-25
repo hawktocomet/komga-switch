@@ -290,9 +290,9 @@ static void loadBookPages(AppState& state, const string& bookId)
 static void handleInputLogin(u64 btn, AppState& state) 
 {
 
-    // ---- Cycle through 4 fields: 0=server, 1=port, 2=user, 3=pass ----
+    // ---- Cycle through 5 fields: 0=server, 1=port, 2=path 3=user, 4=pass ----
     // ---- (ZL/ZR / Up/Down all cycle the same way) ----
-    constexpr int NUM_FIELDS = 4;
+    constexpr int NUM_FIELDS = 5;
 
     if (btn & HidNpadButton_ZL || btn & HidNpadButton_Up) 
     {
@@ -318,7 +318,7 @@ static void handleInputLogin(u64 btn, AppState& state)
             state.loginError   = "";
 
             // ---- Update API base from current fields ----
-            KomgaApi::setApiBase("http://" + state.inputServer + ":" + state.inputPort + "/api/v1");
+            KomgaApi::setApiBase("http://" + state.inputServer + ":" + state.inputPort + state.inputPath + "/api/v1");
 
             if (KomgaApi::login(state.inputUser, state.inputPass)) 
             {
@@ -393,7 +393,7 @@ static void handleInputLogin(u64 btn, AppState& state)
         
         swkbdConfigSetHeaderText(&kbd, headers[state.loginField]);
         
-        if (state.loginField == 3) 
+        if (state.loginField == 4) 
         {
         
             swkbdConfigSetPasswordFlag(&kbd, true);
@@ -414,9 +414,11 @@ static void handleInputLogin(u64 btn, AppState& state)
                 
                 case 1: state.inputPort   = val; break;
                 
-                case 2: state.inputUser   = val; break;
+                case 2: state.inputPath   = val; break;
+
+                case 3: state.inputUser   = val; break;
                 
-                case 3: state.inputPass   = val; break;
+                case 4: state.inputPass   = val; break;
             
             }
         
