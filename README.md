@@ -49,17 +49,42 @@ make
 ````
 
 ## Controls
+## Controls
+
+### Landscape Mode
 
 | Button | Action |
 |---|---|
-| D-Pad / Up / Down | Navigate menus |
-| A | Select / Login |
-| B | Back |
-| Y | Open keyboard |
 | L / R | Previous / Next page |
+| Left / Right D-Pad | Previous / Next page |
 | ZL / ZR | Zoom out / in |
 | Left Stick | Pan |
+| Up / Down D-Pad | Pan vertical |
 | X | Toggle HUD |
+| Minus | Switch to portrait mode |
+| B | Back |
+| Plus | Exit |
+
+### Portrait Mode (hold console vertically)
+
+| Button | Action |
+|---|---|
+| Up / Down D-Pad | Previous / Next page |
+| Left / Right D-Pad | Zoom out / in |
+| Left Stick | Pan |
+| LB | Toggle HUD |
+| Minus | Switch to landscape mode |
+| B | Back |
+| Plus | Exit |
+
+### Menus
+
+| Button | Action |
+|---|---|
+| Up / Down D-Pad | Navigate |
+| A | Select / Login |
+| B | Back / Logout |
+| Y | Open keyboard |
 | Plus | Exit |
 
 ## Notes
