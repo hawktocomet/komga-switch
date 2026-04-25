@@ -193,8 +193,10 @@ void drawLibraryScreen(SDL_Renderer* r, TTF_Font* fontLg, TTF_Font* fontMd, TTF_
     for (int i = 0; i < (int)state.libraries.size(); ++i) 
     {
     
-        int y = startY + i * (itemH + 12);
+        int y = startY + i * (itemH + 12) - state.libScroll;
     
+        if (y + itemH < 0 || y > SCREEN_H) continue;
+
         bool sel = (i == state.libSelected);
     
         Color bgCol = sel ? C_HIGHLIGHT : C_PANEL;

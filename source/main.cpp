@@ -237,6 +237,8 @@ static void loadLibraries(AppState& state)
     state.libraries = KomgaApi::getLibraries();
     
     state.libSelected = 0;
+
+    state.libScroll = 0;
 }
 
 // ---- Load Series ----
@@ -440,6 +442,14 @@ static void handleInputLibrary(u64 btn, AppState& state)
     {
     
         state.libSelected = max(0, state.libSelected - 1);
+
+        // Scroll up
+        int itemTop = 90 + state.libSelected * (70 + 12);
+        
+        if (itemTop < state.libScroll + 90)
+        {
+            state.libScroll = max(0, itemTop - 90);
+        }
     
     }
 
@@ -447,6 +457,16 @@ static void handleInputLibrary(u64 btn, AppState& state)
     {
         
         state.libSelected = min(n - 1, state.libSelected + 1);
+    
+        // Scroll down
+        int itemBottom = 90 + state.libSelected * (70 + 12) + 70;
+        
+        if (itemBottom > SCREEN_H - 40)
+        {
+            
+            state.libScroll = itemBottom - (SCREEN_H - 40);
+
+        }
     
     }
 

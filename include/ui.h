@@ -91,6 +91,8 @@ struct AppState
     
     int libSelected = 0;
 
+    int libScroll = 0;
+
     // ---- Series ----
     KomgaPage_Result<KomgaSeries> seriesPage;
     
