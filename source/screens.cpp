@@ -245,7 +245,7 @@ void drawSeriesScreen(SDL_Renderer* r, TTF_Font* fontLg, TTF_Font* fontMd, TTF_F
     // ---- Pages Text ----
     string paging = "Page " + to_string(state.seriesPageIndex + 1) + " / " + to_string(max(1, state.seriesPage.totalPages));
     
-    drawText(r, fontSm, paging, SCREEN_W - 90, 26, C_SUBTEXT, false, true);
+    drawText(r, fontSm, paging, SCREEN_W - 120, 26, C_SUBTEXT, false, true);
 
     if (state.seriesLoading) 
     {
@@ -323,7 +323,7 @@ void drawSeriesScreen(SDL_Renderer* r, TTF_Font* fontLg, TTF_Font* fontMd, TTF_F
     }
 
     // --- Control Hints ----
-    drawText(r, fontSm, "[D-Pad] Navigate   [A] Open   [B] Back   [L]/[R] Prev/Next page   [Y] Search", SCREEN_W/2, 30, C_SUBTEXT, true);
+    drawText(r, fontSm, "[D-Pad] Navigate   [A] Open   [B] Back   [L]/[R] Prev/Next page (wrap)   [Y] Search", SCREEN_W/2, 30, C_SUBTEXT, true);
 
 }
 
@@ -340,7 +340,7 @@ void drawBooksScreen(SDL_Renderer* r, TTF_Font* fontLg, TTF_Font* fontMd, TTF_Fo
     // ---- Pages Text -----
     string paging = "Page " + to_string(state.bookPageIndex + 1) + " / " + to_string(max(1, state.booksPage.totalPages));
     
-    drawText(r, fontSm, paging, SCREEN_W - 90, 26, C_SUBTEXT, false, true);
+    drawText(r, fontSm, paging, SCREEN_W - 120, 26, C_SUBTEXT, false, true);
 
     if (state.booksLoading) 
     {
@@ -441,7 +441,7 @@ void drawReaderScreen(SDL_Renderer* r, TTF_Font* fontMd, TTF_Font* fontSm, AppSt
     
     }
 
-    string pageUrl = KomgaApi::bookPageUrl( state.currentBookId, state.readerPage + 1 );
+    string pageUrl = KomgaApi::bookPageUrl( state.currentBookId, state.readerPage );
 
     SDL_Texture* tex = cache.get( pageUrl );
 

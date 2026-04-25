@@ -549,18 +549,33 @@ static void handleInputSeries(u64 btn, AppState& state)
     state.seriesSelected = sel;
 
     // ---- Paginate Series across pages ----
+    if (btn & HidNpadButton_L && state.seriesPageIndex > 0) 
+    {
+
+        loadSeriesPage(state, state.currentLibraryId, state.seriesPageIndex - 1);
+
+    }
+
     if (btn & HidNpadButton_R && state.seriesPageIndex + 1 < state.seriesPage.totalPages) 
     {
 
         loadSeriesPage(state, state.currentLibraryId, state.seriesPageIndex + 1);
     
     }
-        
-    if (btn & HidNpadButton_L && state.seriesPageIndex > 0) 
+
+    // ---- Jump to last/first page ----
+    if (btn & HidNpadButton_L && state.seriesPageIndex == 0)
     {
+    
+        loadSeriesPage(state, state.currentLibraryId, state.seriesPage.totalPages - 1);
+    
+    }
 
-        loadSeriesPage(state, state.currentLibraryId, state.seriesPageIndex - 1);
-
+    if (btn & HidNpadButton_R && state.seriesPageIndex == state.seriesPage.totalPages - 1)
+    {
+    
+        loadSeriesPage(state, state.currentLibraryId, 0);
+    
     }
 
     // ---- Search for Series with system keyboard ----
@@ -658,18 +673,30 @@ static void handleInputBooks(u64 btn, AppState& state)
 
     state.bookSelected = sel;
 
+    // ---- Page Left/Right Books ----
+    if (btn & HidNpadButton_L && state.bookPageIndex > 0) 
+    {
+
+        loadBooksPage(state, state.currentSeriesId, state.bookPageIndex - 1);
+    
+    }
+
     if (btn & HidNpadButton_R && state.bookPageIndex + 1 < state.booksPage.totalPages) 
     {
 
         loadBooksPage(state, state.currentSeriesId, state.bookPageIndex + 1);
     
     }
-       
-    if (btn & HidNpadButton_L && state.bookPageIndex > 0) 
-    {
 
-        loadBooksPage(state, state.currentSeriesId, state.bookPageIndex - 1);
-    
+    // ---- Jump to last/first page ----
+    if (btn & HidNpadButton_L && state.bookPageIndex == 0)
+    {
+        loadBooksPage(state, state.currentSeriesId, state.booksPage.totalPages - 1);
+    }
+
+    if (btn & HidNpadButton_R && state.bookPageIndex == state.booksPage.totalPages - 1)
+    {
+        loadBooksPage(state, state.currentSeriesId, 0);
     }
 
     if (btn & HidNpadButton_A && n > 0) 
@@ -784,6 +811,29 @@ static void handleInputReader(u64 btn, AppState& state)
             { 
             
                 pageLeft(); didPageTurn = true; 
+            
+            }
+        
+        }
+            
+        // In Portrait: RB/ZR change page
+        if (btn & HidNpadButton_ZR)
+        {
+        
+            if (state.readerPage > 0) 
+            { 
+                pageLeft(); didPageTurn = true; 
+            }
+        
+        }
+
+        if (btn & HidNpadButton_R)
+        {
+        
+            if (state.readerPage < total - 1) 
+            { 
+            
+                pageRight(); didPageTurn = true; 
             
             }
         
